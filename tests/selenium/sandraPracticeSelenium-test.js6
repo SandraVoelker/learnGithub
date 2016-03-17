@@ -1,0 +1,157 @@
+import assert from 'assert';
+// this is a utility anna built that alows for a full screenshot of the app.  (yeah!)
+import testUtil from './test-util';
+
+
+// start Selenuim tests
+describe('Sandras Selenium Tests', function()
+{
+    // stuff to do before selenuim tests start...
+    let client = null;
+    before(function() 
+    {
+      client = browser();
+      console.log(client);
+    });
+
+  // ---- START TESTS  ----- 
+
+  // this is a very basic, how to get an element out of the header.  
+   it('Sandras test of title "Escher"', function()
+   {
+      return client.getTitle()
+      .then(function(title) 
+      {
+        assert.equal(title, 'Escher');
+      });
+    });
+
+ // I can get a snapshot of the screen before the change
+  it('Get the before slider move image', function() {
+    return client.execute(testUtil.captureAllBeforeImage)
+    .then( function(res)
+    {
+       console.log(res.value);
+     });
+  });
+
+
+  // this moved the slider and checks the the value changed. 
+  // I give it a description so I know what info is about to run. 
+    it('Moves the top slider', function() 
+    {
+        // get the long path here by right clicking on the element in the Chrome devTools and selecting copy > copy Selector
+       var sliderSelector = 'body > div.App > div > div:nth-child(4) > div:nth-child(1) > div > div.Panel-body > div:nth-child(1) > input';
+       var sliderValueSelector = 'body > div.App > div > div:nth-child(4) > div:nth-child(1) > div > div.Panel-body > div:nth-child(1) > span';
+       // defining these variables, the value will come from the script below.
+       var startSliderValue ="";
+       var endSliderValue ="";
+        // this is one long return string!  but its a recomended format. 
+      return client.getText(sliderValueSelector)
+        // "then" is a called a promise.  a promsise is inserted to be sure things are syncronous.
+        //  it is used when we need to analyse the resuts of what is happening to the UI.
+       .then(function(text) 
+       {
+         console.log("slider value is " + text); // show the result of the current value of the slider.
+         startSliderValue = text; // assign that value to the start value
+       })
+        // do some stuff with the mouse, like...
+        // move the mouse to the center of the sliderSelector
+       .moveToObject(sliderSelector)
+        // push the left(0) button down 
+       .buttonDown(0)
+        // move the sliderSelector object over 50 pixels
+       .moveToObject(sliderSelector,50,0)
+        // lift the left(0) button up
+       .buttonUp(0)
+        // get the text value of the slider
+       .getText(sliderValueSelector)
+       // analyse the results and send it to the console.
+       .then(function(text) 
+       {
+          console.log("New slider value is " + text); // show the result of the current value of the slider.
+          endSliderValue = text; // assign that value to end value
+        })
+        // now do the real comparison test to see if it passes or fails.
+       .then(function() 
+       {
+          assert.notEqual(startSliderValue, endSliderValue);  // have the script say pass or fail!
+       });
+      
+    });
+
+ // I can get a snapshot of the screen after the change
+  it('Get the before slider move image', function() {
+    return client.execute(testUtil.captureAllAfterImage)
+    .then( function(res)
+    {
+       console.log(res.value);
+     });
+  });
+
+
+  
+// TODO  Started working on getting this different type of slider to move.  NOT DONE. 
+    // it('Moves the Inline slider', function() 
+    // {
+    //     // get the long path here by right clicking on the element in the Chrome devTools and selecting copy > copy Selector
+    //    var sliderInSelector = 'body > div.App > div > div:nth-child(4) > div:nth-child(1) > div > div.Panel-body > div:nth-child(3) > input';
+    //    var sliderInValueSelector = 'body > div.App > div > div:nth-child(4) > div:nth-child(1) > div > div.Panel-body > div:nth-child(3) > span';
+    //    // defining these variables, the value will come from the script below.
+    //    var startInSliderValue ="";
+    //    var endInSliderValue ="";
+    //     // this is one long return string!  but its a recomended format. 
+    //   return client.getText(sliderInValueSelector)
+    //     // "then" is a called a promise.  a promsise is inserted to be sure things are syncronous.
+    //     //  it is used when we need to analyse the resuts of what is happening to the UI.
+    //    .then(function(text) 
+    //    {
+    //      console.log("In slider value is " + text); // show the result of the current value of the slider.
+    //      startInSliderValue = text; // assign that value to the start value
+    //    })
+    //     // do some stuff with the mouse, like...
+    //     // move the mouse to the center of the sliderSelector
+    //    .moveToObject(sliderInSelector)
+    //     // push the left(0) button down 
+    //    .buttonDown(0)
+    //     // move the sliderSelector object over 50 pixels
+    //    .moveToObject(sliderInSelector,10,0)
+    //     // lift the left(0) button up
+    //    .buttonUp(0)
+    //     // get the text value of the slider
+    //    .getText(sliderInValueSelector)
+    //    // analyse the results and send it to the console.
+    //    .then(function(text) 
+    //    {
+    //       console.log("In New slider value is " + text); // show the result of the current value of the slider.
+    //       endInSliderValue = text; // assign that value to end value
+    //     })
+    //     // now do the real comparison test to see if it passes or fails.
+    //    .then(function() 
+    //    {
+    //       assert.notEqual(startInSliderValue, endInSliderValue);  // have the script say pass or fail!
+    //    });
+      
+    // });
+
+
+
+
+
+
+  // ---- END TESTS ----- 
+
+
+        // stuff to do after selenuim tests are done...  
+  after(function(done) 
+  {
+    return client.end(done);
+  });
+
+
+
+});  // end description wrapper for organizing output
+
+
+
+

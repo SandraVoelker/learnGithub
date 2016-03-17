@@ -1,0 +1,26 @@
+import '../controllers/AssetController';
+import 'src/constants/Status';
+import 'assert';
+
+describe('AssetController', ()=> {
+  it('is created without throwing', ()=> {
+    assert.doesNotThrow(()=> new AssetController());
+  });
+
+  describe('after creation', ()=> {
+    let controller;
+    before(()=> {
+      controller = new AssetController();
+      return controller.loaded;
+    });
+
+    it ('has status of OK', ()=> {
+      assert.equal(controller.status, Status.OK);
+    });
+
+    it ('contains a bunch of assets', ()=> {
+      assert.notEqual(controller.assets.length, 0);
+    });
+  });
+
+});

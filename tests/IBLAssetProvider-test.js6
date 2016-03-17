@@ -1,0 +1,39 @@
+import IBLAssetProvider from '../models/IBLAssetProvider';
+import IBLAsset from '../models/IBLAsset';
+import Status from '../constants/Status';
+import assert from 'assert';
+import sandrasclass from '../lib/SandraTests/Sandra_testClass';  //
+
+describe('IBLAssetProvider', ()=> {
+
+  it('does not throw when created', ()=> {
+    assert.doesNotThrow(()=> { new IBLAssetProvider(); });
+  });
+
+  it('has a status of loading before assets are loaded', ()=> {
+    let provider = new IBLAssetProvider();
+    assert.equal(provider.status, Status.LOADING);
+  });
+
+  describe('after loading assets', ()=> {
+    let provider;
+    before(()=> {
+      provider = new IBLAssetProvider();
+      return provider.loaded;
+    });
+
+    it('has a list of IBLs which are created', ()=> {
+      assert.notEqual(provider.assets.length, 0);
+      assert.equal(provider.assets[0] instanceof IBLAsset, true);
+    });
+
+    it('has a status of OK after loading', ()=> {
+      assert.equal(provider.status, Status.OK);
+    });
+  });
+
+
+
+
+
+});

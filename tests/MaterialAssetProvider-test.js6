@@ -1,0 +1,46 @@
+import '../models/MaterialAssetProvider';
+import '../models/MaterialAsset';
+import '../constants/Status';
+import 'assert';
+import 'fs';
+
+describe('MaterialAssetProvider', ()=> {
+  it('is created without throwing', ()=> {
+    assert.doesNotThrow(()=> new MaterialAssetProvider());
+  });
+
+  describe('initial state', ()=> {
+    it ('loads asynchronously', ()=> {
+      let provider = new MaterialAssetProvider();
+      assert(provider.loaded);
+      assert(provider.status, Status.LOADING);
+      assert(1);
+    });
+  });
+
+  describe('after creation', ()=> {
+    let provider;
+    before(()=>{
+      provider = new MaterialAssetProvider();
+      return provider.loaded;
+    });
+
+    it('contains some assets', ()=> {
+      assert.notEqual(provider.assets.length, 0);
+      assert.equal(provider.assets[0] instanceof MaterialAsset, true);
+    });
+
+    it('the files in the assets all exist', ()=> {
+      provider.assets.forEach((asset) => {
+        assert(fs.existsSync(asset.thumbnail));
+        assert(fs.existsSync(asset.file));
+      });
+    });
+
+    it('each asset has a display name', ()=> {
+      provider.assets.forEach((asset) => {
+        assert.notEqual(asset.name.length, 0);
+      });
+    });
+  });
+});

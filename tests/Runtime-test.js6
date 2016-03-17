@@ -1,0 +1,25 @@
+import 'src/constants/Runtime';
+import 'assert';
+import 'fs';
+import 'path';
+
+describe('Runtime', ()=> {
+  describe('resourcesPath', ()=> {
+    it('is set and exists on disk', ()=> {
+      assert(Runtime.resourcesPath);
+      assert(fs.existsSync(Runtime.resourcesPath));
+    });
+
+    it('resources path contains expected files', ()=> {
+      const expectedPaths = [
+        'common',
+        'common/scene-assets/materials/manifest.json',
+      ];
+
+      expectedPaths.forEach((filepath)=> {
+        assert(fs.existsSync(path.join(Runtime.resourcesPath, filepath)),
+          `path '${filepath}' exists`);
+      });
+    });
+  });
+});

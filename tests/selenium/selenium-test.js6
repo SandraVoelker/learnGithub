@@ -1,0 +1,90 @@
+import assert from 'assert';
+import testUtil from './test-util';
+
+// global function. 
+function captureCanvas()
+{
+  var fs = require('fs');
+  var canvas = document.getElementsByTagName("canvas")[0];
+  var ctx = canvas.getContext('webgl');
+  var dataUrl = canvas.toDataURL("image/png");
+  var data = dataUrl.replace(/^data:image\/\w+;base64,/, "");
+  var buf = new Buffer(data, 'base64');
+  var filename = 'testing/scene-canvas-' + '.png';
+  fs.mkdir('testing', function() {
+    fs.writeFile(filename, buf);
+  });
+
+  return true;
+}
+
+// start Selenuim tests
+describe('Selenium Test', function()
+  {
+    let client = null;
+    before(() => {
+      client = browser();
+      console.log(client);
+    });
+
+// this is a very basic test that demonstrates how to get an element out of the header.  
+// just checks the title to make sure the name is the same as expected.  "Esher"
+ it('Title should be "Escher"', function(){
+    return client.getTitle().then(function(title) {
+      assert.equal(title, 'Escher');
+    });
+  });
+
+
+// This is just a way to click on a button and then checks to see if the tab status of that button is active. 
+  it('Clicking Camera tab should make camer button active', function(){
+    var sceneTabSelector = '.Tab=Scene';
+    var cameraTabSelector = '.Tab=Camera';
+    var sceneClass = "";
+    var camClass = "";
+    return client.click(cameraTabSelector).getAttribute(sceneTabSelector, 'class').then(function(attr) {
+      console.log(attr);
+      sceneClass = attr;
+    }).getAttribute(cameraTabSelector, 'class').then(function(attr) {
+      console.log(attr);
+      camClass = attr;
+    }).then(function() {
+      assert(sceneClass === 'Tab' && camClass === 'Tab is-active');
+    });
+  });
+
+  /* it('Clicking 3d button turns off 3d view', function(){
+    var threeDeeViewSelector='.ThreeDeeView';
+    var threeDeeViewButtonSelector='body > div.App > div > div.Workspace.Workspace--verticalSplit > footer > div.Workspace-viewIcons > div:nth-child(1)'
+    var tdvClassIsHidden = false;
+    var tdvCanvasWidth = "0";
+    return client.click(threeDeeViewButtonSelector).getAttribute(threeDeeViewSelector, 'class').then(function(attr) {
+      console.log(attr);
+      tdvClassIsHidden = (attr === 'ThreeDeeView u-hidden');
+    }).getAttribute('.ThreeDeeView > canvas', 'width').then(function(attr) {
+      console.log(attr);
+      tdvCanvasWidth = attr;
+    }).then( function() {
+      assert(tdvClassIsHidden && tdvCanvasWidth=== '0');
+    });
+  });*/
+
+
+  it('Outputs the image that is on the canvas in 3d view', function() {
+    return client.execute(testUtil.captureImages).then( function(res){
+       console.log(res.value);
+     });
+  });
+
+  after(() => {
+   return client.end();
+  });
+
+
+});  // end selenium tests
+
+  
+
+
+
+

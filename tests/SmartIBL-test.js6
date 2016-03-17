@@ -1,0 +1,87 @@
+import SmartIBL, { stripPrefix, coerce, ValueType, MapType } from '../lib/SmartIBL';
+import fs from 'fs';
+import assert from 'assert';
+
+describe('SmartIBL helper functions', ()=> {
+  describe('coerce', ()=> {
+    it('Can coerce types from strings', ()=> {
+      assert.equal(coerce(ValueType.Float, '1.23'), 1.23);
+      assert.equal(coerce(ValueType.String, '1.23'), '1.23');
+      assert.equal(coerce(ValueType.Int, '1.23'), 1);
+    });
+  });
+
+  describe('stripPrefix', ()=> {
+    let obj, result;
+
+    before(()=>{
+      obj = {
+        'MyPrefixedValue' : 123,
+        'MyNonPrefixedValue' : 456
+      };
+      result = stripPrefix('MyPrefixed', obj);
+    });
+
+    it('Can strip prefixes from Object keys', ()=> {
+      assert.equal(result.Value, 123);
+    });
+
+    it('Ignores non-prefixed keys', ()=> {
+      assert.equal(result.MyNonPrefixedValue, 456);
+    });
+  });
+});
+
+describe('SmartIBL', ()=> {
+  let ibl;
+
+  before(()=>{
+    const iblFile = fs.readFileSync('./src/tests/fixtures/test-ibl/test.ibl', 'utf8');
+    ibl = SmartIBL.parse(iblFile);
+  });
+
+  it('#parse returns a value', ()=> {
+    assert.notEqual(ibl, undefined);
+  });
+
+  it('Can read basic header info', ()=> {
+    assert.equal(ibl.name, 'Hollywood Sign');
+    assert.equal(ibl.thumbnail, 'HWSign3-Fence_Thumb.jpg');
+  });
+
+  it('Can read environment from file', ()=> {
+    assert.equal(ibl.environment.mapType, MapType.Equirectangular);
+    assert.equal(ibl.environment.multiplier, 1.0);
+    assert.equal(ibl.environment.offset[0], 0.0);
+    assert.equal(ibl.environment.offset[1], 0.0);
+    assert.equal(ibl.environment.height, 180);
+    assert.equal(ibl.environment.gamma, 1.5);
+  });
+
+  it('Can read sun from file', ()=> {
+    assert.equal(ibl.sun.color, "254,206,169");
+    assert.equal(ibl.sun.multiplier, 1.0);
+    assert.deepEqual(ibl.sun.offset, [0.794, 0.476]);
+  });
+
+  it('Can read reflection from file', ()=> {
+    assert.equal(ibl.reflection.file, "HWSign3-Fence_2k.hdr");
+    assert.equal(ibl.reflection.mapType, MapType.Equirectangular);
+    assert.deepEqual(ibl.reflection.offset, [0.0, 0.0]);
+    assert.equal(ibl.reflection.height, 1024);
+    assert.equal(ibl.reflection.multiplier, 1.0);
+    assert.equal(ibl.reflection.gamma, 1.5);
+  });
+
+  it('Can read background from file', ()=> {
+    const bg = ibl.background;
+    assert.equal(bg.file, "HWSign3-Fence_TMap.jpg");
+    assert.equal(bg.mapType, MapType.Equirectangular);
+    assert.deepEqual(bg.offset, [0.0, 0.0]);
+    assert.equal(bg.height, 4000);
+  });
+
+  it('Can parse lights from file', ()=> {
+    // TODO: additional lights in scene. See LightX in SmartIBL.
+  });
+});

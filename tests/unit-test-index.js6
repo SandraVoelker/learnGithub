@@ -1,0 +1,51 @@
+let didRun = false;
+
+// this just lets gulp know that we are running all the unit tests in the Tests folder, just not selenium.
+
+function run(callback) {
+  // Make sure we will run again in watch mode.
+  didRun = true;
+
+  const Mocha = __non_webpack_require__('mocha');
+  //hijack mocha's command line output, as it currently goes to window.console
+  //print instead to command line
+  const util = __non_webpack_require__('util');
+  //window.console.log = (...args) => {
+    //process.stdout.write(util.format.apply(this,args));
+    //process.stdout.write('\n');
+  //}
+
+  const mocha = new Mocha();
+
+  //Link to your test entrypoint.
+  const testsContext = require.context(".", true, /^((?!selenium\/).)*-test.js6$/);
+  testsContext.keys().forEach((file) => {
+    mocha.suite.emit('pre-require', window, file, mocha);
+    mocha.suite.emit('require', testsContext(file), file, mocha);
+    mocha.suite.emit('post-require', window, file, mocha);
+  });
+
+  setTimeout(() => {
+    mocha.run((failures) => {
+      if(callback)
+        callback(failures);
+    });
+  },  0);
+}
+
+if (module.hot) {
+  module.hot.accept();
+  module.hot.dispose((data) => {
+//    mocha.suite.suites.length = 0;
+
+    // Data is saved across two different runs.
+    // Make sure we propagte the "didRun" variable to future runs.
+    data.runAgain = didRun;
+  });
+
+  if (module.hot.data && module.hot.data.runAgain) {
+    run();
+  }
+}
+
+export default run;

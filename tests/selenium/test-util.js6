@@ -1,0 +1,59 @@
+var self = module.exports = {
+
+// this is a helper script that lets Electron communicate to the browser through IPC
+// used to do stuff that is outside of the webdriverIO and more a system call to Electron.
+
+  captureImages : function()
+  {
+    var d = new Date();
+    var dateTimeString =  d.getFullYear().toString() + (d.getMonth() + 1).toString() 
+    + d.getDate().toString() + "T"
+    + d.getHours().toString() + d.getMinutes().toString()
+    + d.getSeconds().toString();
+
+    var fs = require('fs');
+    var canvas = document.getElementsByTagName("canvas")[0];
+    var ctx = canvas.getContext('webgl');
+    var dataUrl = canvas.toDataURL("image/png");
+    var data = dataUrl.replace(/^data:image\/\w+;base64,/, "");
+    var buf = new Buffer(data, 'base64');
+    var filename = 'testing/scene-canvas-' + dateTimeString + '.png';
+    fs.mkdir('testing', function() 
+    {
+      fs.writeFile(filename, buf);
+    });
+
+    var ipc = require('ipc');
+    ipc.sendSync('save-screenshot', dateTimeString);
+  },
+
+
+
+  captureAllBeforeImage : function()
+  {
+    var d = new Date();
+    var dateTimeString =  "_Before" + d.getFullYear().toString() + (d.getMonth() + 1).toString() 
+    + d.getDate().toString() + "T"
+    + d.getHours().toString() + d.getMinutes().toString()
+    + d.getSeconds().toString();
+
+    var ipc = require('ipc');
+    ipc.sendSync('save-screenshot', dateTimeString);
+  },
+
+
+  captureAllAfterImage : function()
+  {
+    var d = new Date();
+    var dateTimeString =  "_After" + d.getFullYear().toString() + (d.getMonth() + 1).toString() 
+    + d.getDate().toString() + "T"
+    + d.getHours().toString() + d.getMinutes().toString()
+    + d.getSeconds().toString();
+
+    var ipc = require('ipc');
+    ipc.sendSync('save-screenshot', dateTimeString);
+  },
+
+
+
+} // end self function. 

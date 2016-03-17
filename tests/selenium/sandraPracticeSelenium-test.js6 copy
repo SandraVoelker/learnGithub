@@ -3,7 +3,6 @@ import assert from 'assert';
 import testUtil from './test-util';
 
 // just adding something to test this. 
-// seeing if I can make a new branch here. 
 
 // start Selenuim tests
 describe('Sandras Selenium Tests', function()
